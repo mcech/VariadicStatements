@@ -1,0 +1,179 @@
+import java.io.Closeable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
+/**
+ * A table of data  representing a database result,  which is  usually generated
+ * by executing a statement that queries the database.
+ *
+ * A Result  object  maintains  a cursor  pointing to  its current  row of data.
+ * Initially  the cursor is  positioned before the first row.  The next() method
+ * moves the cursor to the next row, and because it returns false when there are
+ * no more rows in the Result object,  it can be used in a while loop to iterate
+ * through the result set.
+ */
+public class Result implements Closeable {
+	/**
+	 * Get the column names.
+	 *
+	 * @return An array containing the suggested column names
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public String[] getColumnNames() throws SQLException {
+		ResultSetMetaData md = rs.getMetaData();
+		int count = md.getColumnCount();
+		String[] result = new String[count];
+		for (int i = 0; i < count; ++i) {
+			result[i] = md.getColumnLabel(i + 1);
+		}
+		return result;
+	}
+
+	/**
+	 * Moves the  cursor forward  one row from  its current  position.  A Result
+	 * cursor is initially  positioned before  the first row;  the first call to
+	 * the method  next makes the  first row the  current row;  the second  call
+	 * makes the second row the current row, and so on.
+	 *
+	 * @return true          If the new current row is valid
+	 *         false         If there are no more rows
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public boolean next() throws SQLException {
+		return rs.next();
+	}
+
+	/**
+	 * Gets the value of the designated column in the current row of this Result
+	 * object.
+	 *
+	 * @param  column        The first column is 0, the second is 1, ...
+	 *
+	 * @return An Object holding the column value
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public Long getInt(int column) throws SQLException {
+		long val = rs.getLong(column + 1);
+		if (rs.wasNull()) {
+			return null;
+		}
+		return val;
+	}
+
+	/**
+	 * Gets the value of the designated column in the current row of this Result
+	 * object.
+	 *
+	 * @param  column        The label for the column specified  with the SQL AS
+	 *                       clause.  If  the SQL AS clause  was  not specified,
+	 *                       then the label is the name of the column.
+	 *
+	 * @return An Object holding the column value
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public Long getInt(String column) throws SQLException {
+		long val = rs.getLong(column);
+		if (rs.wasNull()) {
+			return null;
+		}
+		return val;
+	}
+
+	/**
+	 * Gets the value of the designated column in the current row of this Result
+	 * object.
+	 *
+	 * @param  column        The first column is 0, the second is 1, ...
+	 *
+	 * @return An Object holding the column value
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public Double getFloat(int column) throws SQLException {
+		double val = rs.getDouble(column + 1);
+		if (rs.wasNull()) {
+			return null;
+		}
+		return val;
+	}
+
+	/**
+	 * Gets the value of the designated column in the current row of this Result
+	 * object.
+	 *
+	 * @param  column        The label for the column specified  with the SQL AS
+	 *                       clause.  If  the SQL AS clause  was  not specified,
+	 *                       then the label is the name of the column.
+	 *
+	 * @return An Object holding the column value
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public Double getFloat(String column) throws SQLException {
+		double val = rs.getDouble(column);
+		if (rs.wasNull()) {
+			return null;
+		}
+		return val;
+	}
+
+	/**
+	 * Gets the value of the designated column in the current row of this Result
+	 * object.
+	 *
+	 * @param  column        The first column is 0, the second is 1, ...
+	 *
+	 * @return An Object holding the column value
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public String getString(int column) throws SQLException {
+		return rs.getString(column + 1);
+	}
+
+	/**
+	 * Gets the value of the designated column in the current row of this Result
+	 * object.
+	 *
+	 * @param  column        The label for the column specified  with the SQL AS
+	 *                       clause.  If  the SQL AS clause  was  not specified,
+	 *                       then the label is the name of the column.
+	 *
+	 * @return An Object holding the column value
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	public String getString(String column) throws SQLException {
+		return rs.getString(column);
+	}
+
+	/**
+	 * Closes the Result and releases its resources.
+	 */
+	@Override
+	public void close() {
+		try {rs.close();} catch (SQLException ignore) {}
+		try {stmt.close();} catch (SQLException ignore) {}
+	}
+
+	/**
+	 * Creates a Result object generated by the given statement.
+	 *
+	 * @param  stmt          A PreparedStatement object that contains the prepared query.
+	 *
+	 * @throws SQLException  If a database access error occurs
+	 */
+	Result(PreparedStatement stmt) throws SQLException {
+		this.stmt = stmt;
+		rs = stmt.executeQuery();
+	}
+
+	private PreparedStatement stmt;
+	private ResultSet rs;
+}
